@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Chat</title>
+	<link href="style.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="script.js"></script>
+	<style>
+		/*
+		 * Chat bubble copied from:
+		 * https://codepen.io/t_afif/pen/eYMbrJN?editors=1100
+		 */
+
+		body {
+			height: 100%;
+		}
+
+		main {
+			background: #f0f0f0;
+			height: 100%;
+
+			display: grid;
+			grid-template-columns: 20% 1fr;
+			grid-template-rows: 1fr;
+			grid-template-areas: 'sidebar content';
+		}
+
+		aside {
+			grid-area: sidebar;
+		}
+
+		/* On mobile, we simply hide the navigation */
+		@media screen and (max-width: 768px) {
+			aside {
+				display: none;
+			}
+
+			/* The grid is also changed */
+			main {
+				grid-template-columns: 0 1fr;
+			}
+		}
+
+		#content {
+			grid-area: content;
+
+			/* The next two lines are necessary to support scrolling in the chat */
+			overflow: hidden;
+			height: 100%;
+
+			display: grid;
+			grid-template-columns: 1fr;
+			grid-template-rows: auto 1fr auto;
+			grid-template-areas: 'header'
+				'content'
+				'footer';
+		}
+
+		header {
+			grid-area: header;
+		}
+
+		#chat {
+			grid-area: content;
+			overflow: hidden;
+		}
+
+		/* This block is necessary to support scrolling in the chat area */
+		#chat>.card-content {
+			overflow: auto;
+			max-height: 100%;
+		}
+
+		footer {
+			grid-area: footer;
+		}
+
+		#header-box {
+			display: flex;
+		}
+
+		#header-box>div {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.name-wrap {
+			flex-grow: 1;
+		}
+
+		.image-wrap span {
+			font-size: 2rem;
+		}
+
+		#form-wrap {
+			display: flex;
+		}
+
+		#form-wrap>div {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.message-wrap {
+			flex-grow: 1;
+		}
+
+		.chat-message-wrapper {
+			display: flex;
+			margin-bottom: 1rem;
+		}
+
+		.chat-message {
+			border-radius: .25rem;
+			position: relative;
+			width: 100%;
+
+			/* radius of the tail */
+			--r: 25px;
+			/* size of the tail */
+			--t: 15px;
+
+			padding: calc(2*var(--r)/3);
+			mask: radial-gradient(var(--t) at var(--_d) 0, #0000 98%, #000 102%) var(--_d) 100%/calc(100% - var(--r)) var(--t) no-repeat,
+				conic-gradient(at var(--r) var(--r), #000 75%, #0000 0) calc(var(--r)/-2) calc(var(--r)/-2) padding-box,
+				radial-gradient(50% 50%, #000 98%, #0000 101%) 0 0/var(--r) var(--r) space padding-box;
+			;
+			-webkit-mask:
+				radial-gradient(var(--t) at var(--_d) 0, #0000 98%, #000 102%) var(--_d) 100%/calc(100% - var(--r)) var(--t) no-repeat,
+				conic-gradient(at var(--r) var(--r), #000 75%, #0000 0) calc(var(--r)/-2) calc(var(--r)/-2) padding-box,
+				radial-gradient(50% 50%, #000 98%, #0000 101%) 0 0/var(--r) var(--r) space padding-box;
+		}
+
+		/* On large screens, don't use the full width for message bubbles */
+		@media screen and (min-width: 769px) {
+			.chat-message {
+				width: auto;
+				max-width: 75%;
+				min-width: 100px;
+			}
+
+			.chat-message-push {
+				flex-grow: 1;
+			}
+		}
+
+		@media screen and (min-width: 1408px) {
+			.chat-message {
+				max-width: 33%;
+			}
+		}
+
+		.chat-message.received {
+			/* border: #6C8EBF 1px solid; */
+			background: #DAE8FC;
+
+			--_d: 0%;
+			border-left: var(--t) solid #0000;
+			margin-right: var(--t);
+			place-self: start;
+		}
+
+		.chat-message.sent {
+			/* border: #82B366 1px solid; */
+			background: #D5E8D4;
+
+			--_d: 100%;
+			border-right: var(--t) solid #0000;
+			margin-left: var(--t);
+			place-self: end;
+		}
+
+		.chat-message-content {
+			word-wrap: break-word;
+		}
+
+		/* Don't break words in the chat list */
+		nav .panel-block {
+			white-space: nowrap;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+
+	<main>
+
+		<div id="content" class="p-5">
+
+			<header class="card">
+				<div class="card-content" id="header-box">
+					<div class="image-wrap pr-5 is-hidden-tablet">
+						<a href="#">
+							<span class="fa-solid fa-chevron-left"></span>
+						</a>
+					</div>
+					<div class="image-wrap">
+						<span class="fa-solid fa-circle-user"></span>
+					</div>
+					<div class="name-wrap px-4">
+						<h1 class="is-size-4" id="chat-name">Günther Grass</h1>
+					</div>
+					<div class="button-wrap">
+						<button class="button is-secondary is-small">
+							<span class="fa-solid fa-gear"></span>
+						</button>
+					</div>
+				</div>
+			</header>
+
+			<div id="chat" class="card my-4">
+				<div class="card-content" id="chat-messages-container">
+
+				</div>
+			</div>
+
+			<footer class="card">
+				<form class="card-content" id="form-wrap">
+
+					<div class="shortcut-wrap">
+						<div class="is-flex">
+							<button class="button is-ghost">
+								<span class="fa-solid fa-paperclip"></span>
+							</button>
+							<button class="button is-ghost">
+								<span class="fa-solid fa-microphone"></span>
+							</button>
+							<button class="button is-ghost">
+								<span class="fa-solid fa-location-dot"></span>
+							</button>
+						</div>
+					</div>
+
+					<div class="message-wrap px-3">
+						<input class="input" id="chat-input" placeholder="Deine Nachricht ..." />
+					</div>
+
+					<div class="submit-wrap">
+						<button class="button is-outlined is-primary" type="submit">
+							<span class="fa-solid fa-paper-plane"></span>
+						</button>
+					</div>
+
+
+				</form>
+			</footer>
+		</div>
+
+		<aside class="p-5">
+			<nav class="panel has-background-white">
+				<a class="panel-block is-active">
+					<span class="panel-icon">
+						<i class="fas fa-face-laugh" aria-hidden="true"></i>
+					</span>
+					Günther Grass
+				</a>
+				<a class="panel-block">
+					<span class="panel-icon">
+						<i class="fas fa-face-laugh" aria-hidden="true"></i>
+					</span>
+					Axel Schweiß
+				</a>
+				<a class="panel-block">
+					<span class="panel-icon">
+						<i class="fas fa-face-laugh" aria-hidden="true"></i>
+					</span>
+					Gerold Steiner
+				</a>
+				<a class="panel-block">
+					<span class="panel-icon">
+						<i class="fas fa-face-laugh" aria-hidden="true"></i>
+					</span>
+					Rainer Wein
+				</a>
+				<a class="panel-block">
+					<span class="panel-icon">
+						<i class="fas fa-face-laugh" aria-hidden="true"></i>
+					</span>
+					Claire Grube
+				</a>
+				<a class="panel-block">
+					<span class="panel-icon">
+						<i class="fas fa-face-laugh" aria-hidden="true"></i>
+					</span>
+					Marta Pfahl
+				</a>
+
+			</nav>
+		</aside>
+	</main>
+
+</body>
+
+</html>
