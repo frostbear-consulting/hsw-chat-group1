@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const me = getMeFromURLParams() || 2;
 
     async function load() {
-        const response = await fetch('http://localhost:3000/api/messages');
+        const response = await GET('messages');
         const body = await response.json();
 
         const messages = $('#chat-messages-container')[0];
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function postMessage(message, time) {
-        const response = await fetch('http://localhost:3000/api/messages', {
+        const response = await fetch('messages', {
             method: 'post',
             body: JSON.stringify({
                 time,
