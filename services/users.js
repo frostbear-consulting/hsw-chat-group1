@@ -8,8 +8,8 @@ exports.getAll = async function (session, db) {
                                            OR (U."idUser" = C."toUser_id" AND C."fromUser_id" = :idUser)
                 LEFT JOIN "Message" M on C."idChat" = M.chat_id
         WHERE "idUser" != :idUser
-        GROUP BY "idUser", "fromUser_id", "toUser_id", "idChat"
-        ORDER BY MAX("sentAt") DESC`,
+        GROUP BY "idUser", "fromUser_id", "toUser_id", "idChat", "firstName", "lastName"
+        ORDER BY MAX("sentAt") DESC NULLS LAST, "firstName", "lastName"`,
         { idUser },
     );
 
